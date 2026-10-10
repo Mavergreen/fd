@@ -8,3 +8,7 @@ RUST_PIN="$(tr -d ' \t\n' < "$REPO_ROOT/components/rust/version")"
 WORK="${MAVERICKS_BUILD_ROOT:-${TMPDIR:-/tmp}/mm-build}/mavergreen-fd"
 TARGET_TRIPLE=x86_64-apple-darwin
 export FD_VERSION RUST_PIN WORK TARGET_TRIPLE
+PREFIX=/usr/local/mavergreen/fd
+STAGE_ROOT="$WORK/stage"
+STAGE="$STAGE_ROOT$PREFIX"
+export PREFIX STAGE_ROOT STAGE

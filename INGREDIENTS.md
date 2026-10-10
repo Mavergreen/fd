@@ -26,3 +26,5 @@ names the git commit it was packaged from.
 - rust: components/rust/version
 
 ## Conformance deviations
+
+- rosetta:tests/build-test.sh: on an arm64 CI runner the test executes the shipped x86_64 `fd` (`--version`, a find by extension) under Rosetta. It cannot run natively: the binary under test is the x86_64 one, and the release runner is arm64. CI primes Rosetta and runs it; it exits 77 only on a developer's arm64 Mac without Rosetta. On 10.9 it runs natively. Exit: move the run half to an x86_64 host (the 10.9 box or an Intel runner) before macOS 28 removes Rosetta.
