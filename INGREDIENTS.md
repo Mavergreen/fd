@@ -20,6 +20,15 @@ checksums for fd's source, so its tarball would need a hash pinned by hand or by
 carries upstream's `Cargo.lock`, `doc/fd.1` and the shell completions, and its `.cargo_vcs_info.json`
 names the git commit it was packaged from.
 
+## The 10.9 compat gate
+
+`build/compat-gate.sh` runs shipyard's compat guard on the linked `fd` before it is staged: x86_64
+only, minos and SDK 10.9, and no post-10.9 undefined import. Mavergreen/rust's `rustc` force-loads
+macports-legacy-support, which defines the 10.10 functions fd's std calls (`clock_gettime`,
+`CCRandomGenerateBytes`, `fstatat`). fd's release profile strips symbols, so the shipped binary
+records none of them as defined and `MAVERICKS_REQUIRE_DEFINED_SYMBOLS` stays empty. Instead the
+gate denies all three as imports: a build that lost the shim would import them, and fail.
+
 ## Declared state
 
 - upstream: UPSTREAM_VERSION

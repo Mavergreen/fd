@@ -21,6 +21,7 @@ CARGO_HOME="$WORK/cargo-home" CARGO_TARGET_DIR="$WORK/target" RUSTC="$RUST_BIN/r
   "$RUST_BIN/cargo" build --release --locked --target "$TARGET_TRIPLE" --manifest-path "$SRC/Cargo.toml" >&2
 OUT="$WORK/target/$TARGET_TRIPLE/release/fd"
 [ -x "$OUT" ] || { echo "build: cargo produced no $OUT" >&2; exit 1; }
+sh "$REPO_ROOT/build/compat-gate.sh" "$OUT" >&2
 
 rm -rf "$STAGE_ROOT"; mkdir -p "$STAGE/bin"
 cp "$OUT" "$STAGE/bin/fd"
