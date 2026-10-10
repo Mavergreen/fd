@@ -9,6 +9,7 @@ The *own upstream* is fd; an ingredient is anything else the artifact is built w
 | fd's crate dependencies | upstream's `Cargo.lock`, inside the fd crate | ✅ move with `UPSTREAM_VERSION` | built `--locked`: cargo verifies each against the checksum in that lock file |
 | Rust toolchain (`rust` on 10.9, `rust-cross` on a modern Mac) | `components/rust/version` | ✅ `github-releases` on `Mavergreen/rust`, `-mavericks.N` versioning | repackage → `-mavericks.(N+1)`. `build/fetch-rust.sh` verifies the pkg against its release's `SHA256SUMS` and extracts it under the build root; nothing is installed |
 | MacOSX10.9 SDK (x86_64) | shipyard `fetch_sdk.sh` (pinned by hash) | ✅ moves with shipyard `@v1` | moving tag |
+| Sparkle 1.27.3 (embedded in `fd-updater.app`) | shipyard `fetch_sparkle_framework.sh` (pinned by hash) | ✅ moves with shipyard `@v1` | moving tag |
 
 ## fd source verification
 

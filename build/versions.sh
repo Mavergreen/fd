@@ -12,3 +12,6 @@ PREFIX=/usr/local/mavergreen/fd
 STAGE_ROOT="$WORK/stage"
 STAGE="$STAGE_ROOT$PREFIX"
 export PREFIX STAGE_ROOT STAGE
+SHORT=fd
+IDENTIFIER=dev.mavergreen.fd
+export SHORT IDENTIFIER

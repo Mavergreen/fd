@@ -1,0 +1,9 @@
+Updater icon: NONE. fd-updater ships the standard macOS application icon by explicit opt-in
+(ALLOW_GENERIC), so no artwork is embedded.
+
+Deliberate: fd's logo belongs to the fd project, and this product is an unofficial community build
+that must not read as official. A stand-in .icns would be exactly the placeholder the icon gate
+rejects.
+
+Exit: when an original Mavergreen fd mark exists, add updater/fd.icns, pass ICON to
+mavericks_add_updater_app, and drop ALLOW_GENERIC.
