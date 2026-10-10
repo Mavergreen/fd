@@ -10,3 +10,10 @@ for that one release. When present, it is inserted verbatim right after the gene
 NOT start with its own `## ` heading, since the generator already emits the title.
 
 Most releases have no file here, and that's fine: the generator's own sections are the whole note.
+
+## Before trusting a release
+
+On a real Mac OS X 10.9 box, run `sh build/check-release-on-10.9.sh <version>`: it fetches the
+release's pkg, verifies it against `SHA256SUMS`, installs it, runs `fd` from a login shell, finds its
+man page, and uninstalls it. CI's `vm-test` job runs the same script against each build in a 10.9.5 VM; this run is the one on real
+hardware, against what was actually published.

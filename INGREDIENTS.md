@@ -39,11 +39,14 @@ macports-legacy-support, which defines the 10.10 functions fd's std calls (`cloc
 records none of them as defined and `MAVERICKS_REQUIRE_DEFINED_SYMBOLS` stays empty. Instead the
 gate denies all three as imports: a build that lost the shim would import them, and fail.
 
+## Running the shipped fd
+
+CI cross-builds on an Apple Silicon runner, where the x86_64 `fd` could run only under Rosetta, so
+it never runs there. The `vm-test` job instead boots Mac OS X 10.9.5 with `Mavergreen/mavericks-vm`,
+installs the built `.pkg`, and uses `fd` from a login shell (`build/check-release-on-10.9.sh`, the
+same check a maintainer runs on real hardware after a release). Publishing waits for it.
+
 ## Declared state
 
 - upstream: UPSTREAM_VERSION
 - rust: components/rust/version
-
-## Conformance deviations
-
-- rosetta:tests/build-test.sh: on an arm64 CI runner the test executes the shipped x86_64 `fd` (`--version`, a find by extension) under Rosetta. It cannot run natively: the binary under test is the x86_64 one, and the release runner is arm64. CI primes Rosetta and runs it; it exits 77 only on a developer's arm64 Mac without Rosetta. On 10.9 it runs natively. Exit: move the run half to an x86_64 host (the 10.9 box or an Intel runner) before macOS 28 removes Rosetta.
