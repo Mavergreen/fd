@@ -9,6 +9,13 @@ FD="$STAGE/bin/fd"
 
 [ "$(lipo -info "$FD" | sed -n 's/.*: //p' | xargs)" = x86_64 ] \
   || fail "fd must be exactly x86_64: the 10.9 target has no other arch (got: $(lipo -info "$FD"))"
+for f in share/man/man1/fd.1 share/zsh/site-functions/_fd share/bash-completion/completions/fd \
+         share/fish/vendor_completions.d/fd.fish; do
+  [ -s "$STAGE/$f" ] || fail "the stage must carry fd's $f, in the path its shell or man searches"
+done
+grep -q '^\.TH FD 1' "$STAGE/share/man/man1/fd.1" || fail "share/man/man1/fd.1 must be fd's man page"
+grep -q 'complete -F _fd' "$STAGE/share/bash-completion/completions/fd" || fail "the bash completion must complete fd"
+grep -q 'complete -c fd' "$STAGE/share/fish/vendor_completions.d/fd.fish" || fail "the fish completion must complete fd"
 file "$FD" | grep -q 'Mach-O 64-bit executable x86_64' || fail "fd must be an x86_64 Mach-O executable (got: $(file "$FD"))"
 
 # platform: an arm64 Mac runs this x86_64 fd only through Rosetta; oahd is its daemon

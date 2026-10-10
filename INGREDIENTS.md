@@ -7,7 +7,7 @@ The *own upstream* is fd; an ingredient is anything else the artifact is built w
 |---|---|---|---|
 | fd source (own upstream) | `UPSTREAM_VERSION` | ✅ `crate` on `fd-find` | cuts `<ver>-mavericks.1` |
 | fd's crate dependencies | upstream's `Cargo.lock`, inside the fd crate | ✅ move with `UPSTREAM_VERSION` | built `--locked`: cargo verifies each against the checksum in that lock file |
-| Rust toolchain (`rust` on 10.9, `rust-cross` on a modern Mac) | `components/rust/version` | ✅ `github-releases` on `Mavergreen/rust`, `-mavericks.N` versioning | repackage → `-mavericks.(N+1)` |
+| Rust toolchain (`rust` on 10.9, `rust-cross` on a modern Mac) | `components/rust/version` | ✅ `github-releases` on `Mavergreen/rust`, `-mavericks.N` versioning | repackage → `-mavericks.(N+1)`. `build/fetch-rust.sh` verifies the pkg against its release's `SHA256SUMS` and extracts it under the build root; nothing is installed |
 | MacOSX10.9 SDK (x86_64) | shipyard `fetch_sdk.sh` (pinned by hash) | ✅ moves with shipyard `@v1` | moving tag |
 
 ## fd source verification
@@ -19,6 +19,15 @@ version the index does not list, or lists without a checksum, fails the fetch. G
 checksums for fd's source, so its tarball would need a hash pinned by hand or by a bot. The crate
 carries upstream's `Cargo.lock`, `doc/fd.1` and the shell completions, and its `.cargo_vcs_info.json`
 names the git commit it was packaged from.
+
+## Man page and completions
+
+`doc/fd.1` and the zsh completion `contrib/completion/_fd` ship as upstream wrote them. The bash and
+fish completions are what `fd --gen-completions` prints, as upstream's own Makefile makes them. On an
+arm64 Mac a host-arch `fd`, built from the same source, prints them, so no build step runs under
+Rosetta. They install under `share/zsh/site-functions`, `share/bash-completion/completions` and
+`share/fish/vendor_completions.d` in fd's own tree; the link farm exports only `bin/` and the man
+page, so a shell finds them once pointed there.
 
 ## The 10.9 compat gate
 
