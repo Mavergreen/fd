@@ -15,13 +15,13 @@ dir="$WORK/toolchain/$short-$RUST_PIN"
 tc="$dir/root/usr/local/mavergreen/$short"
 if [ -f "$dir/extracted" ] && [ -x "$tc/bin/cargo" ]; then echo "$tc"; exit 0; fi
 
-sums="$(curl -fsSL "$base/SHA256SUMS")" || { echo "fetch-rust: cannot read $base/SHA256SUMS" >&2; exit 1; }
+sums="$(shipyard_curl "$base/SHA256SUMS" -)" || { echo "fetch-rust: cannot read $base/SHA256SUMS" >&2; exit 1; }
 sha="$(printf '%s\n' "$sums" | awk -v f="$pkg" '$2 == f || $2 == "*" f { print $1 }')"
 case "$sha" in
   "") echo "fetch-rust: $pkg is not listed in $base/SHA256SUMS; refusing an unverified toolchain" >&2; exit 1 ;;
   *[!0-9a-f]*) echo "fetch-rust: $pkg is listed more than once in $base/SHA256SUMS" >&2; exit 1 ;;
 esac
-mav_fetch_verified "$base/$pkg" "$sha" "$dir" "$pkg" || { echo "fetch-rust: $pkg did not verify" >&2; exit 1; }
+shipyard_fetch_verified "$base/$pkg" "$sha" "$dir" "$pkg" || { echo "fetch-rust: $pkg did not verify" >&2; exit 1; }
 
 rm -rf "$dir/expanded" "$dir/root" "$dir/extracted"
 pkgutil --expand "$dir/$pkg" "$dir/expanded"
