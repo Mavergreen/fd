@@ -1,5 +1,5 @@
 #!/bin/sh
-# platform: macOS-only -- lipo reads the Mach-O, and the x86_64 fd runs only on a Mac
+# platform: host-agnostic -- $LIPO (clang22's llvm-lipo off macOS) reads the Mach-O; only an x86_64 Mac runs fd
 set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$ROOT/build/versions.sh"
@@ -7,8 +7,9 @@ fail() { echo "FAIL: $1"; exit 1; }
 FD="$STAGE/bin/fd"
 [ -x "$FD" ] || { echo "not built (no $FD) -- skipping"; exit 77; }
 
-[ "$(lipo -info "$FD" | sed -n 's/.*: //p' | xargs)" = x86_64 ] \
-  || fail "fd must be exactly x86_64: the 10.9 target has no other arch (got: $(lipo -info "$FD"))"
+L="${LIPO:-lipo}"
+[ "$("$L" -info "$FD" | sed -n 's/.*: //p' | xargs)" = x86_64 ] \
+  || fail "fd must be exactly x86_64: the 10.9 target has no other arch (got: $("$L" -info "$FD"))"
 for f in share/man/man1/fd.1 share/zsh/site-functions/_fd share/bash-completion/completions/fd \
          share/fish/vendor_completions.d/fd.fish; do
   [ -s "$STAGE/$f" ] || fail "the stage must carry fd's $f, in the path its shell or man searches"
@@ -16,10 +17,10 @@ done
 grep -q '^\.TH FD 1' "$STAGE/share/man/man1/fd.1" || fail "share/man/man1/fd.1 must be fd's man page"
 grep -q 'complete -F _fd' "$STAGE/share/bash-completion/completions/fd" || fail "the bash completion must complete fd"
 grep -q 'complete -c fd' "$STAGE/share/fish/vendor_completions.d/fd.fish" || fail "the fish completion must complete fd"
-file "$FD" | grep -q 'Mach-O 64-bit executable x86_64' || fail "fd must be an x86_64 Mach-O executable (got: $(file "$FD"))"
+file "$FD" | grep -Eq 'Mach-O 64-bit (executable x86_64|x86_64 executable)' || fail "fd must be an x86_64 Mach-O executable (got: $(file "$FD"))"
 
-if [ "$(uname -m)" != x86_64 ]; then
-  echo "PASS: build (static checks; the x86_64 fd runs on Mac OS X 10.9 in release.yml's vm-test job, never under Rosetta)"
+if [ "$(uname -s):$(uname -m)" != Darwin:x86_64 ]; then
+  echo "PASS: build (static checks; the x86_64 fd runs on Mac OS X 10.9 in release.yml's vm-test job, never under Rosetta or off macOS)"
   exit 0
 fi
 [ "$("$FD" --version)" = "fd $FD_VERSION" ] || fail "fd --version must print the pinned version (got: $("$FD" --version))"

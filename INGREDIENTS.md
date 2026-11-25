@@ -24,9 +24,9 @@ names the git commit it was packaged from.
 ## Man page and completions
 
 `doc/fd.1` and the zsh completion `contrib/completion/_fd` ship as upstream wrote them. The bash and
-fish completions are what `fd --gen-completions` prints, as upstream's own Makefile makes them. On an
-arm64 Mac a host-arch `fd`, built from the same source, prints them, so no build step runs under
-Rosetta. They install under `share/zsh/site-functions`, `share/bash-completion/completions` and
+fish completions are what `fd --gen-completions` prints, as upstream's own Makefile makes them. On
+Linux and on an arm64 Mac a host `fd`, built from the same source, prints them, so no build step runs
+under Rosetta or needs a Mac. They install under `share/zsh/site-functions`, `share/bash-completion/completions` and
 `share/fish/vendor_completions.d` in fd's own tree; the link farm exports only `bin/` and the man
 page, so a shell finds them once pointed there.
 
@@ -41,10 +41,12 @@ gate denies all three as imports: a build that lost the shim would import them, 
 
 ## Running the shipped fd
 
-CI cross-builds on an Apple Silicon runner, where the x86_64 `fd` could run only under Rosetta, so
-it never runs there. The `vm-test` job instead boots Mac OS X 10.9.5 with `Mavergreen/mavericks-vm`,
-installs the built `.pkg`, and uses `fd` from a login shell (`build/check-release-on-10.9.sh`, the
-same check a maintainer runs on real hardware after a release). Publishing waits for it.
+CI builds on `ubuntu-latest` with the pinned rust's Linux toolchain, clang22 and the 10.9 SDK, all
+through shipyard's `cargo-env.sh`, so the x86_64 `fd` cannot run there. On 10.9 and an Intel Mac,
+`build/build.sh` takes the same `cargo-env.sh` environment; on Apple Silicon it uses the pinned
+`rust-cross` instead. The `vm-test` job boots Mac OS X 10.9.5 with `Mavergreen/mavericks-vm`,
+installs the built `.pkg`, and uses `fd` from a login shell (`build/check-release-on-10.9.sh`, the same
+check a maintainer runs on real hardware after a release). Publishing waits for it.
 
 ## Declared state
 

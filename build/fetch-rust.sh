@@ -1,14 +1,15 @@
 #!/bin/sh
 # platform: macOS-only -- pkgutil expands the toolchain pkg
-#   usage: fetch-rust.sh     prints the prefix of the pinned Mavergreen/rust toolchain for this host
+#   usage: fetch-rust.sh     prints the prefix of the pinned Mavergreen/rust-cross, for Apple Silicon
 #          The pkg named by components/rust/version, verified against its release's SHA256SUMS and
-#          extracted under $WORK, never installed: no root, and exactly the pinned toolchain.
+#          extracted under $WORK, never installed: no root, and exactly the pinned toolchain. An x86_64
+#          host takes the pinned rust from shipyard's cargo-env.sh instead.
 set -eu
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$REPO_ROOT/build/versions.sh"
 . "$REPO_ROOT/build/msc.sh"
 . "$SHIPYARD_SCRIPTS/mavericks_fetch.sh"
-short="$(sh "$REPO_ROOT/build/rust-toolchain.sh" "$(sh "$SHIPYARD_SCRIPTS/mavericks_mode.sh")" "$(uname -m)")"
+short=rust-cross
 base="https://github.com/Mavergreen/rust/releases/download/$RUST_PIN"
 pkg="$short-$RUST_PIN.pkg"
 dir="$WORK/toolchain/$short-$RUST_PIN"

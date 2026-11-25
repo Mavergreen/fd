@@ -11,6 +11,11 @@ has() { printf '%s\n' "$code" | grep -q -e "$1"; }
 printf '%s\n' "$code" | awk '/^  pull_request:/{f=1;next} f&&/branches:/{print;exit}' | grep -q '\[main\]' \
   || fail "release.yml must build pull requests to main: Renovate's automerge waits on that check"
 has 'sh build/build.sh' || fail "release.yml must build fd"
+build="$(printf '%s\n' "$code" | awk '/^  build:/{f=1;print;next} /^  [a-z][a-z-]*:$/{f=0} f')"
+printf '%s\n' "$build" | grep -q 'runs-on: ubuntu-latest' || fail "the build job must run on ubuntu-latest: the pinned rust's Linux toolchain targets 10.9"
+if has 'runs-on: macos'; then fail "release.yml must run no macOS job: fd builds on Linux and runs on 10.9 in vm-test"; fi
+printf '%s\n' "$build" | grep -q 'cargo-env.sh" components/rust' || fail "the build job must take its cargo environment from shipyard's cargo-env.sh with the pinned rust"
+if has 'products: rust'; then fail "release.yml must not install the rust pkg: cargo-env.sh fetches the pinned Linux toolchain"; fi
 grep -q 'compat-gate.sh' "$ROOT/build/build.sh" || fail "build.sh must gate fd as 10.9-safe before staging it"
 has 'sh build/package-pkg.sh' || fail "release.yml must package fd"
 has 'run-repo-tests.sh' || fail "release.yml must run the repo's tests"

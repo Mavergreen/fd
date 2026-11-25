@@ -52,7 +52,7 @@ jobs:
 
   build:
     needs: ver
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
@@ -60,6 +60,8 @@ jobs:
       - uses: Mavergreen/shipyard/.github/actions/install@v1
       - name: Build out of tree
         run: echo "MAVERICKS_BUILD_ROOT=$RUNNER_TEMP/mm-build" >> "$GITHUB_ENV"
+      - name: The 10.9 cargo environment (pinned rust, clang22, SDK)
+        run: sh "$SHIPYARD_SCRIPTS/cargo-env.sh" components/rust >> "$GITHUB_ENV"
       - name: Pin the version the ver job resolved
         run: printf '%s\n' "${{ needs.ver.outputs.version }}" > VERSION
       - name: Record the pre-build tree

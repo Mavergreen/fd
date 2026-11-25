@@ -1,11 +1,11 @@
 #!/bin/sh
-# platform: macOS-only -- ditto, pkgbuild and productbuild make the pkg
+# platform: host-agnostic -- shipyard's stage_product.sh, build_component_pkg.sh and set_install_floor.sh make the pkg
 #   usage: package-pkg.sh     wraps the staged fd and its updater into dist/fd-<version>.pkg
 set -eu
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$REPO_ROOT/build/versions.sh"
 . "$REPO_ROOT/build/msc.sh"
-# platform: without it, ditto and pkgbuild carry AppleDouble ._ files into the payload
+# platform: without it, a Mac's cp carries AppleDouble ._ files into the payload
 COPYFILE_DISABLE=1; export COPYFILE_DISABLE
 [ -x "$STAGE/bin/fd" ] || { echo "package-pkg: no $STAGE/bin/fd -- run build/build.sh first" >&2; exit 1; }
 sh "$REPO_ROOT/build/compat-gate.sh" "$STAGE/bin/fd" >&2
@@ -15,10 +15,9 @@ pr="$WORK/pkgroot"; scr="$WORK/pkg-scripts"; comp="$WORK/$SHORT-component.pkg"
 rm -rf "$pr" "$scr" "$comp"
 mkdir -p "$pr$(dirname "$PREFIX")" "$REPO_ROOT/dist"
 rm -f "$REPO_ROOT"/dist/"$SHORT"-*.pkg
-# platform: macOS stamps an undeletable com.apple.provenance on every file a tracked process
-#           writes, and pkgbuild records it as a ._X member; --noextattr drops only the others
-ditto --norsrc --noextattr --noacl "$STAGE" "$pr$PREFIX"
-app="$(sh "$REPO_ROOT/build/build-updater.sh")"
+mkdir -p "$pr$PREFIX"
+cp -R "$STAGE/." "$pr$PREFIX"
+app="$(sh "$REPO_ROOT/build/build-updater.sh" "$VER" "$WORK/updater")"
 find "$pr" -name '._*' -delete
 sh "$SHIPYARD_SCRIPTS/stage_product.sh" --stage "$pr" --product "$SHORT" --name "fd for Mavericks" \
   --version "$VER" --scripts-out "$scr" --updater-app "$app"
